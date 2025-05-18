@@ -1,39 +1,17 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"os"
-	"strconv"
+
+	"example.com/bank/pkg/fileops"
+	"github.com/Pallinder/go-randomdata"
 )
 
 var accountFile = "account.txt"
 
-func getBalance() (float64, error) {
-	data, err := os.ReadFile(accountFile)
-
-	if err != nil {
-		return 0, errors.New("Failed to find Account file.")
-	}
-
-	balanceText := string(data)
-	balance, err := strconv.ParseFloat(balanceText, 64)
-
-	if err != nil {
-		return 0, errors.New("Failed to parse the balance from file.")
-	}
-
-	return balance, nil
-}
-
-func saveBalance(balance float64) {
-	balanceText := fmt.Sprint(balance)
-	os.WriteFile(accountFile, []byte(balanceText), 0644)
-}
-
 func main() {
 
-	var accountBalance, err = getBalance()
+	var accountBalance, err = fileops.GetFloatValue(accountFile)
 
 	if err != nil {
 		fmt.Println("ERROR!!!")
@@ -44,6 +22,7 @@ func main() {
 	}
 
 	fmt.Println("Welcome to the Go Bank!")
+	fmt.Println("Reach us 24/7 at ", randomdata.PhoneNumber())
 
 	// withIfElse(accountBalance)
 	withSwitch(accountBalance)
@@ -59,11 +38,7 @@ func getUserInputs(label string) float64 {
 
 func withIfElse(accountBalance float64) {
 	for {
-		fmt.Println("What do you want to do?")
-		fmt.Println("1. Check Balance")
-		fmt.Println("2. Deposit Money")
-		fmt.Println("3. Withdraw Money")
-		fmt.Println("4. Exit")
+		presentOptions()
 
 		var choice int
 		fmt.Print("Your Choice: ")
@@ -107,11 +82,7 @@ func withIfElse(accountBalance float64) {
 
 func withSwitch(accountBalance float64) {
 	for {
-		fmt.Println("What do you want to do?")
-		fmt.Println("1. Check Balance")
-		fmt.Println("2. Deposit Money")
-		fmt.Println("3. Withdraw Money")
-		fmt.Println("4. Exit")
+		presentOptions()
 
 		var choice int
 		fmt.Print("Your Choice: ")
@@ -129,7 +100,7 @@ func withSwitch(accountBalance float64) {
 			}
 
 			accountBalance += depositAmount
-			saveBalance(accountBalance)
+			fileops.SaveFloatValue(accountBalance, accountFile)
 			fmt.Println("Your New balance: ", accountBalance)
 		case 3:
 			withdrawAmount := getUserInputs("Your Withdraw Amount: ")
@@ -146,7 +117,7 @@ func withSwitch(accountBalance float64) {
 			}
 
 			accountBalance -= withdrawAmount
-			saveBalance(accountBalance)
+			fileops.SaveFloatValue(accountBalance, accountFile)
 			fmt.Println("Your New balance: ", accountBalance)
 		default:
 			fmt.Println("Goodbye!!!")
